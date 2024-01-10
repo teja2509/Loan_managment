@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Loan Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+    
+        form {
+            max-width: 400px;
+            margin: 20px auto; /* Add margin to center the form */
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+    
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+    
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+    
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px; /* Add border-radius */
+        }
+    
+        .delete-button:hover {
+            background-color: rgb(194, 26, 26);
+        }
+    
+        #outputTable {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 10px; /* Add border-radius */
+        }
+    
+        #outputTable th, #outputTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+    
+        #outputTable th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    
+        .action-buttons button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 5px; /* Add border-radius */
+        }
+    
+        .edit-button {
+            background-color: #0489f6;
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: rgb(rgb(34, 34, 148));
+        }
+    
+        .edit-button[disabled]:hover::after {
+            content: "⚠️";
+            color: red;
+            font-size: 14px;
+            position: absolute;
+            margin-left: 5px;
+        }
+    
+        .delete-button {
+            background-color: red;
+            color: white;
+        }
+    
+        .download-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+    
+        .mark-as-paid-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+    
+        .edit-mode input,
+        .edit-mode .mark-as-paid-button {
+            background-color: #f0f0f0;
+        }
+    
+        .edit-mode .mark-as-paid-button,
+        .edit-mode .edit-button {
+            pointer-events: none;
+        }
+
+        /* Add this CSS to style the display data container */
+#displayRowData {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+}
+
+#displayRowData div {
+    margin-bottom: 8px;
+}
+
+#displayRowData div:last-child {
+    margin-bottom: 0;
+}
+
+#displayRowData span {
+    font-weight: bold; /* Make the header text bold */
+}
+
+#displayRowData button {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#displayRowData button:hover {
+    background-color: #45a049;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    margin-bottom: 20px; /* Add margin to create space */
+}
+
+.logo {
+    
+    justify-content: center;
+    align-items: center;
+    font-size: 24px; /* Adjust font size as needed */
+}
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">🍸🍄</div>
+        
+    </header>
+
+<form id="loanForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required>
+
+    <label for="moneyTaken">Money Taken:</label>
+    <input type="number" id="moneyTaken" required>
+
+    <label for="takenDate">Taken Date:</label>
+    <input type="date" id="takenDate" required>
+
+    <label for="returnDate">Return Date:</label>
+    <input type="date" id="returnDate" required>
+
+    <label for="interestPercentage">Interest Percentage:</label>
+    <input type="number" id="interestPercentage" required>
+
+    <label for="interestAmount">Interest Amount:</label>
+    <input type="number" id="interestAmount" required>
+
+    <label for="totalMoney">Total Money:</label>
+    <input type="number" id="totalMoney" required>
+
+    <label for="returnMoney">Return Money:</label>
+    <input type="number" id="returnMoney" required>
+
+    <button type="button" onclick="submitForm()">Submit</button>
+    <button onclick="downloadCSV()">Download CSV</button>
+
+
+    <div id="messageDiv"></div>
+</form>
+
+<!-- Add this container in the body of your main HTML file -->
+
+
+
+
+
+<table id="outputTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Money Taken</th>
+            <th>Taken Date</th>
+            <th>Return Date</th>
+            <th>Interest Percentage</th>
+            <th>Interest Amount</th>
+            <th>Total Money</th>
+            <th>Return Money</th>
+            <th>Mark as Paid</th>
+            <th>Paid Date</th>
+            <th>Edit</th>
+            <th>Delete</th>
+            <th>Copy</th>
+        </tr>
+    </thead>
+    <tbody id="outputTableBody">
+
+        
+        
+    </tbody>
+</table>
+
+
+
+<!-- Confirmation Modal -->
+<div id="deleteConfirmationModal" style="display: none;">
+    <p>Are you sure you want to delete the data?</p>
+    <button id="confirmDelete">Yes</button>
+    <button id="cancelDelete">No</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
+
+<script>
+    window.onload = function () {
+        loadDataFromLocalStorage();
+    
+        // Add click event listener to each row for row selection
+        var tableRows = document.querySelectorAll('#outputTableBody tr');
+        tableRows.forEach(function (row) {
+            row.addEventListener('click', function () {
+                toggleRowSelection(this);
+            });
+        });
+    };
+    
+    function toggleRowSelection(row) {
+        // Toggle the 'selected' class on the clicked row
+        row.classList.toggle('selected');
+    }
+
+    
+    function downloadCSV() {
+        // Get the header names
+        var headerNames = getHeaderNames();
+    
+        // Get all rows in the table body
+        var tableBody = document.getElementById('outputTableBody');
+        var rows = tableBody.querySelectorAll('tr');
+    
+        // Create an array to hold all rows' data
+        var allRowsData = [];
+    
+        // Loop through each row and get its data
+        rows.forEach(function (row) {
+            var rowData = getRowData(row);
+            allRowsData.push(rowData);
+        });
+    
+        // Combine header and row data into a CSV string
+        var csvContent = "data:text/csv;charset=utf-8,";
+    
+        // Add header row
+        csvContent += headerNames.join(',') + '\n';
+    
+        // Add data rows
+        allRowsData.forEach(function (rowData) {
+            csvContent += rowData.join(',') + '\n';
+        });
+    
+        // Create a data URI and trigger the download
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "table_data.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+
+
+    function formatCombinedData(headerNames, rowData) {
+        // Calculate the maximum header length
+        var maxHeaderLength = Math.max(...headerNames.map(header => header.length));
+    
+        // Combine header names and row data with equal spacing
+        var combinedData = "";
+        for (var i = 0; i < headerNames.length; i++) {
+            var headerSpaces = " ".repeat(maxHeaderLength - headerNames[i].length + 2);
+            combinedData += `*${headerNames[i]}*${headerSpaces}:${rowData[i]}\n`;
+        }
+        return combinedData;
+    }
+    
+    function copyRow(button) {
+        var row = button.closest('tr');
+    
+        // Get the header names
+        var headerNames = getHeaderNames();
+    
+        // Get the row data of the selected row
+        var rowData = getRowData(row);
+    
+        // Create a temporary textarea for combined header and row data
+        var combinedData = formatCombinedData(headerNames, rowData);
+        var combinedTextarea = document.createElement('textarea');
+        combinedTextarea.value = combinedData;
+        document.body.appendChild(combinedTextarea);
+    
+        // Select and copy the combined data
+        combinedTextarea.select();
+        document.execCommand('copy');
+    
+        // Construct and copy the custom message
+        var customMessage = `Hi, ${rowData[0]}!\nToday's date is ${formatDate(new Date().toISOString().split('T')[0])}.\nYou have successfully borrowed Rs ${rowData[1]} .\nPlease repay on time to save extra charges.\n\n`;
+    
+        // Add the user data to the custom message
+        customMessage += formatCombinedData(headerNames, rowData);
+
+        customMessage += '\n\nNote: \n1. Every month you have to Pay Intrest Money same date of every next month  \n2. Date format "Year - Month - Date"\n\n';
+    
+        var customMessageTextarea = document.createElement('textarea');
+        customMessageTextarea.value = customMessage;
+        document.body.appendChild(customMessageTextarea);
+    
+        // Select and copy the custom message
+        customMessageTextarea.select();
+        document.execCommand('copy');
+    
+        // Remove the temporary textareas
+        document.body.removeChild(combinedTextarea);
+        document.body.removeChild(customMessageTextarea);
+    
+        // Optionally, you can provide a visual feedback to the user
+        button.textContent = 'Copied!';
+        setTimeout(function () {
+            button.textContent = 'Copy';
+        }, 1000); // Reset the button text after 1 second
+    }
+    
+    
+    
+
+
+function formatDate(dateString) {
+    // Parse the input date string
+    var dateObject = new Date(dateString);
+
+    // Format the date as "DD-MM-YYYY"
+    var formattedDate = `${dateObject.getDate().toString().padStart(2, '0')}-${(dateObject.getMonth() + 1).toString().padStart(2, '0')}-${dateObject.getFullYear()}`;
+
+    return formattedDate;
+}
+
+
+
+
+
+
+    function downloadDisplayedData() {
+        var displayRowDataDiv = document.getElementById('displayRowData');
+    
+        // Options for pdfmake
+        var pdfDefinition = {
+            content: [
+                // Add content from the displayRowDataDiv
+                displayRowDataDiv.innerHTML
+            ]
+        };
+    
+        // Use pdfmake to generate the PDF
+        pdfmake.createPdf(pdfDefinition).download('displayed_data.pdf');
+    }
+    
+
+    var userName;
+
+    function deleteRow(button) {
+        // Display the confirmation modal
+        var modal = document.getElementById('deleteConfirmationModal');
+        modal.style.display = 'block';
+
+        // Store the reference to the current row's delete button
+        var deleteButton = button;
+
+        // Attach event listeners to the modal buttons
+        document.getElementById('confirmDelete').onclick = function () {
+            // Remove the row from the table
+            var row = deleteButton.closest('tr');
+            row.parentNode.removeChild(row);
+
+            saveDataToLocalStorage();
+
+            // Close the modal after deletion
+            modal.style.display = 'none';
+        };
+
+        document.getElementById('cancelDelete').onclick = function () {
+            // Close the modal without deleting
+            modal.style.display = 'none';
+        };
+    }
+
+    function submitForm() {
+        var name = document.getElementById('name').value;
+        var moneyTaken = document.getElementById('moneyTaken').value;
+        var takenDate = document.getElementById('takenDate').value;
+        var returnDate = document.getElementById('returnDate').value;
+        var interestPercentage = document.getElementById('interestPercentage').value;
+        var interestAmount = document.getElementById('interestAmount').value;
+        var totalMoney = document.getElementById('totalMoney').value;
+        var returnMoney = document.getElementById('returnMoney').value;
+
+        // Create a new row with the entered values
+        var newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>${name}</td>
+        <td>${moneyTaken}</td>
+        <td>${formatDate(takenDate)}</td>
+<td>${formatDate(returnDate)}</td>
+
+        <td>${interestPercentage}</td>
+        <td>${interestAmount}</td>
+        <td>${totalMoney}</td>
+        <td>${returnMoney}</td>
+        <td class="action-buttons">
+            <button class="mark-as-paid-button" onclick="markAsPaid(this)">Mark as Paid</button>
+        </td>
+        <td class="paid-date-cell"></td>
+        <td class="action-buttons">
+            <button class="edit-button" onclick="editRow(this)">Edit</button>
+            <button class="save-button" style="display: none;" onclick="saveRow(this)">Save</button>
+        </td>
+        <td class="action-buttons"><button class="delete-button" onclick="deleteRow(this)">Delete</button></td>
+        <td class="copy-cell"><button onclick="copyRow(this)">Copy</button></td>
+        
+        
+        
+    `;
+
+    // Append the new row to the table body
+    var tableBody = document.getElementById('outputTableBody');
+    tableBody.appendChild(newRow);
+
+    // Clear the form fields after submission
+    document.getElementById('loanForm').reset();
+    showMessage(" Data was added successfully");
+
+    saveDataToLocalStorage();
+}
+
+    function markAsPaid(button) {
+        var row = button.closest('tr');
+        var paidDateCell = row.querySelector('.paid-date-cell');
+        userName = document.getElementById('name').value;
+
+        // Set the current date in the "Paid Date" cell
+        var currentDate = new Date();
+        var formattedDate = currentDate.toISOString().split('T')[0];
+
+        // Store the paid date as a string in the local storage
+        localStorage.setItem('paidDate_' + row.rowIndex, formattedDate);
+
+        paidDateCell.textContent = formattedDate;
+
+        // Disable the "Mark as Paid" button
+        button.disabled = true;
+        button.textContent = "Paid";
+
+        // Disable the "Edit" button
+        var editButton = row.querySelector('.edit-button');
+        editButton.disabled = true;
+
+        // Save the updated data to local storage
+        saveDataToLocalStorage();
+
+        showMessage(userName + " has paid");
+    }
+
+    function loadDataFromLocalStorage() {
+        var tableBody = document.getElementById('outputTableBody');
+        var savedData = localStorage.getItem('loanData');
+
+        if (savedData) {
+            tableBody.innerHTML = savedData;
+
+            // Update the editing state after loading data
+            var rows = tableBody.querySelectorAll('tr');
+            rows.forEach(function (row) {
+                var rowIndex = row.rowIndex;
+                var isEditMode = localStorage.getItem('editMode_' + rowIndex);
+                var markAsPaidButton = row.querySelector('.mark-as-paid-button');
+
+                if (isEditMode === 'true') {
+                    // Enable editing mode for this row
+                    row.classList.add('edit-mode');
+                }
+
+                var paidDateCell = row.querySelector('.paid-date-cell');
+                var storedDate = localStorage.getItem('paidDate_' + rowIndex);
+
+                // Check if the row should be marked as paid automatically
+                if (shouldAutoMarkAsPaid(row) && storedDate) {
+                    // Display the saved paid date
+                    paidDateCell.textContent = storedDate;
+
+                    // Disable the "Mark as Paid" button
+                    markAsPaidButton.disabled = true;
+
+                    // Disable the "Edit" button
+                    var editButton = row.querySelector('.edit-button');
+                    editButton.disabled = true;
+
+                    // Mark the row as auto-marked to prevent further automatic marking
+                    markAsPaidButton.setAttribute('data-auto-marked', 'true');
+                }
+            });
+        }
+    }
+
+    function shouldAutoMarkAsPaid(row) {
+        // Add your logic here to determine whether the row should be marked as paid automatically
+        // For example, you can check a specific condition based on your application's requirements.
+        // Return true if the row should be auto-marked as paid, otherwise return false.
+        return false; // Modify this based on your conditions.
+    }
+
+    function deleteRow(button) {
+        // Display a confirmation dialog
+        var isConfirmed = confirm("Are you sure you want to delete the data?");
+
+        if (isConfirmed) {
+            // Remove the row from the table
+            var row = button.closest('tr');
+            row.parentNode.removeChild(row);
+
+            showMessage("Data was deleted successfully");
+            saveDataToLocalStorage();
+        } else {
+            // Display a message if the user cancels the deletion
+            showMessage("Data was not deleted. It is safe.");
+        }
+    }
+
+    function saveDataToLocalStorage() {
+        var tableBody = document.getElementById('outputTableBody');
+        var rows = tableBody.querySelectorAll('tr');
+
+        // Save the entire table's HTML
+        localStorage.setItem('loanData', tableBody.innerHTML);
+
+        // Save the editing state for each row
+        rows.forEach(function (row) {
+            var rowIndex = row.rowIndex;
+            var isEditMode = row.classList.contains('edit-mode');
+            localStorage.setItem('editMode_' + rowIndex, isEditMode);
+        });
+    }
+
+    function editRow(button) {
+        var row = button.closest('tr');
+        var editButtons = row.querySelectorAll('.edit-button');
+        var saveButtons = row.querySelectorAll('.save-button');
+        var nameInput = row.querySelector('td:nth-child(1)');
+        var moneyTakenInput = row.querySelector('td:nth-child(2)');
+        var takenDateInput = row.querySelector('td:nth-child(3)');
+        var returnDateInput = row.querySelector('td:nth-child(4)');
+        var interestPercentageInput = row.querySelector('td:nth-child(5)');
+        var interestAmountInput = row.querySelector('td:nth-child(6)');
+        var totalMoneyInput = row.querySelector('td:nth-child(7)');
+        var returnMoneyInput = row.querySelector('td:nth-child(8)');
+
+        // Enable editing mode for specific columns
+        row.classList.add('edit-mode');
+        editButtons.forEach(btn => btn.style.display = 'none');
+        saveButtons.forEach(btn => btn.style.display = 'inline-block');
+
+        // Enable input fields for editing in specific columns
+        enableEditing(nameInput);
+        enableEditing(moneyTakenInput);
+        enableEditing(takenDateInput);
+        enableEditing(returnDateInput);
+        enableEditing(interestPercentageInput);
+        enableEditing(interestAmountInput);
+        enableEditing(totalMoneyInput);
+        enableEditing(returnMoneyInput);
+
+        // Disable "Mark as Paid" button and "Paid Date" input during editing
+        row.querySelector('.mark-as-paid-button').disabled = true;
+
+        saveDataToLocalStorage();
+    }
+
+    function saveRow(button) {
+        var row = button.closest('tr');
+        var editButtons = row.querySelectorAll('.edit-button');
+        var saveButtons = row.querySelectorAll('.save-button');
+        var nameInput = row.querySelector('td:nth-child(1)');
+        var moneyTakenInput = row.querySelector('td:nth-child(2)');
+        var takenDateInput = row.querySelector('td:nth-child(3)');
+        var returnDateInput = row.querySelector('td:nth-child(4)');
+        var interestPercentageInput = row.querySelector('td:nth-child(5)');
+        var interestAmountInput = row.querySelector('td:nth-child(6)');
+        var totalMoneyInput = row.querySelector('td:nth-child(7)');
+        var returnMoneyInput = row.querySelector('td:nth-child(8)');
+
+        // Disable editing mode
+        row.classList.remove('edit-mode');
+        editButtons.forEach(btn => btn.style.display = 'inline-block');
+        saveButtons.forEach(btn => btn.style.display = 'none');
+
+        // Disable input fields for editing in specific columns
+        disableEditing(nameInput);
+        disableEditing(moneyTakenInput);
+        disableEditing(takenDateInput);
+        disableEditing(returnDateInput);
+        disableEditing(interestPercentageInput);
+        disableEditing(interestAmountInput);
+        disableEditing(totalMoneyInput);
+        disableEditing(returnMoneyInput);
+
+        // Enable "Mark as Paid" button after saving
+        row.querySelector('.mark-as-paid-button').disabled = false;
+
+        saveDataToLocalStorage();
+        showMessage("Data was changed successfully");
+    }
+
+    function enableEditing(input) {
+        input.setAttribute('contenteditable', 'true');
+    }
+
+    function disableEditing(input) {
+        input.setAttribute('contenteditable', 'false');
+    }
+
+    function showMessage(message) {
+        var messageDiv = document.getElementById('messageDiv');
+        messageDiv.textContent = message;
+        setTimeout(function () {
+            messageDiv.textContent = '';
+        }, 3000); // Clear the message after 3 seconds
+    }
+
+    function getHeaderNames() {
+        // Get the header names from the table
+        var headerRow = document.getElementById('outputTable').rows[0];
+        var headerNames = [];
+    
+        for (var i = 0; i < headerRow.cells.length; i++) {
+            var headerText = headerRow.cells[i].textContent;
+            
+            // Exclude specific buttons from the header names
+            if (!headerText.includes('Mark as Paid') && !headerText.includes('Edit') && !headerText.includes('Delete') && !headerText.includes('Download')) {
+                headerNames.push(headerText);
+            }
+        }
+    
+        return headerNames;
+    }
+
+    function downloadRow(button) {
+        // Add your logic for downloading a specific row here
+        alert("Downloading row: " + button.closest('tr').innerText);
+    }
+    
+    function downloadRowData() {
+        var selectedRows = document.querySelectorAll('#outputTableBody tr.selected');
+        
+        if (selectedRows.length === 0) {
+            alert('Please select at least one row to download.');
+            return;
+        }
+
+        // Get the header names excluding the checkbox column
+        var headerNames = getHeaderNames().filter(name => name !== 'Select');
+
+        // Get the row data for selected rows excluding the checkbox column
+        var rowsData = Array.from(selectedRows).map(row => getRowData(row).slice(0, -1));
+
+        // Create a document definition for pdfmake
+        var docDefinition = {
+            content: [
+                {
+                    table: {
+                        body: [headerNames, ...rowsData]
+                    }
+                }
+            ]
+        };
+
+        // Trigger the download
+        pdfmake.createPdf(docDefinition).download('selected_rows_data.pdf');
+    }
+    
+    
+    function formatDate(dateString) {
+        // Add your date formatting logic here if needed
+        return dateString;
+    }
+    
+    
+    
+    function getRowData(row) {
+        var rowData = [];
+        var cells = row.cells;
+    
+        for (var i = 0; i < cells.length; i++) {
+            rowData.push(cells[i].innerText);
+        }
+    
+        return rowData;
+    }
+
+
+    // Modify the existing downloadRowData function 
+    function downloadRowData() {
+        var selectedRow = document.querySelector('#outputTableBody tr.selected');
+        if (!selectedRow) {
+            alert('Please select a row to download.');
+            return;
+        }
+    
+        // Get the header names
+        var headerNames = getHeaderNames();
+    
+        // Get the row data of the selected row
+        var rowData = getRowData(selectedRow);
+    
+        // Create a document definition for pdfmake
+        var docDefinition = {
+            content: [
+                {
+                    table: {
+                        body: [headerNames, rowData]
+                    }
+                }
+            ]
+        };
+    
+        // Trigger the download
+        pdfmake.createPdf(docDefinition).download('row_data.pdf');
+    }
+
+    
+
+    
+    
+    
+    
+    
+
+    
+
+    
+</script>
+
+</body>
+</html>
